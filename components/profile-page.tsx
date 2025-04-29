@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { LogOut } from "lucide-react"
+import { LogOut, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import getSongs from "@/components/db/get-songs"
@@ -12,6 +12,7 @@ import getSongs from "@/components/db/get-songs"
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
   const [songs, setSongs] = useState<any[]>([])
+  const [userSong, setUserSong] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -21,12 +22,22 @@ export default function ProfilePage() {
     }
   }, [])
 
+  useEffect(() => {
+    //setUserSong
+    console.log(user, songs)
+    if(user && songs.length > 0) {
+      const userSong = songs.find((song) => song.country === user.country)
+      setUserSong(userSong)
+    }
+  }, [user, songs])
+
   useEffect(() => {    
       const existingSongs = localStorage.getItem("eurovisionSongs")
       //check existingSongs is not an empty array
       if(existingSongs && existingSongs !== "[]") {
         console.log("Songs already exist in local storage")        
-        setSongs(JSON.parse(existingSongs)) 
+        setSongs(JSON.parse(existingSongs))       
+        
       } else {
         //fetch existing songs from db
         getSongs().then((songs) => {
@@ -51,13 +62,7 @@ export default function ProfilePage() {
   // Get the user's ratings
   const userRatings = user.ratings || {}
 
-  // Find songs that have been rated
-  const ratedSongs = Object.entries(userRatings)
-    .map(([songId, points]) => {
-      const song = songs.find((s) => s.id === Number(songId))
-      return { song, points }
-    })
-    .sort((a, b) => Number(b.points) - Number(a.points))
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-black text-white pb-20">
@@ -83,38 +88,27 @@ export default function ProfilePage() {
         </div>
 
         <div className="bg-white/5 rounded-lg p-4 mb-6">
-          <h2 className="text-lg font-medium mb-3">Your Votes</h2>
+          <h2 className="text-lg font-medium mb-3">Your Country</h2>
 
-          {ratedSongs.length > 0 ? (
-            <div className="space-y-3">
-              {ratedSongs.map(({ song, points }) => (
-                <div key={song?.id} className="flex items-center gap-3">
+          {userSong ? (
+            <div className="space-y-3">              
+                <div key={userSong?.id} className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-md overflow-hidden relative flex-shrink-0">
                     <Image
-                      src={song?.image || "/placeholder.svg?height=40&width=40"}
-                      alt={song?.title || ""}
+                      src={userSong?.image || "/placeholder.svg?height=40&width=40"}
+                      alt={userSong?.title || ""}
                       fill
                       className="object-cover"
                     />
                   </div>
 
                   <div className="flex-grow min-w-0">
-                    <p className="font-medium truncate">{song?.title}</p>
-                    <p className="text-sm text-white/70 truncate">{song?.country}</p>
+                    <p className="font-medium truncate">{userSong?.title} - {userSong?.artist}</p>
+                    <p className="text-sm text-white/70 truncate">{userSong?.country}</p>
                   </div>
-
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                      Number(points) === 12
-                        ? "bg-gradient-to-r from-pink-600 to-yellow-600"
-                        : Number(points) === 10
-                          ? "bg-gradient-to-r from-blue-600 to-teal-600"
-                          : "bg-gradient-to-r from-purple-600 to-blue-600"
-                    }`}
-                  >
-                  </div>
+                  
                 </div>
-              ))}
+              
             </div>
           ) : (
             <p className="text-white/50 text-center py-4">You haven't rated any songs yet</p>
