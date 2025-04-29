@@ -182,12 +182,8 @@ export default function RatingPage() {
                     <span className="opacity-50">{pointValue}</span>
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                     <span className="text-xs font-normal">
-  {assignedSong.country ? (
-    emojiFlags.data.find((flag) => flag.name === assignedSong.country)?.emoji || assignedSong.country.substring(0, 3)
-  ) : (
-    "N/A"
-  )}
-</span>
+                      {emojiFlags[assignedSong.country]?.emoji || assignedSong.country.substring(0, 3)}
+                    </span>
                     </div>
                   </>
                 ) : (
