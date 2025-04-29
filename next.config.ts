@@ -1,7 +1,6 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+// filepath: c:\Users\Bobby Rangoonwala\src\eurovision-party\eurovision-party\next.config.js
+module.exports = {
+  images: {
+    domains: ['i.scdn.co'], // Add the hostname here
+  },
 };
-
-export default nextConfig;
