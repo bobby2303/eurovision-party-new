@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react"
+import { ChevronLeft, ChevronRight, Play, Pause, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import getSongs from "./db/get-songs"
+import getUserIds from "./db/get-user-ids"
+
+import { castVote } from '@/components/db/vote'
 
 export default function RatingPage() {
   const [currentSongIndex, setCurrentSongIndex] = useState(0)
@@ -13,6 +16,7 @@ export default function RatingPage() {
   const [ratings, setRatings] = useState<Record<number, number>>({})
   const [user, setUser] = useState<any>(null)
   const [songs, setSongs] = useState<any[]>([])
+  const [usersIdMap, setUsersIdMap] = useState<Record<string,string>[]>([])
   const { toast } = useToast()
 
   useEffect(() => {
@@ -32,13 +36,29 @@ export default function RatingPage() {
     if(existingSongs && existingSongs !== "[]") {
       console.log("Songs already exist in local storage")        
       setSongs(JSON.parse(existingSongs)) 
-      console.log(JSON.parse(existingSongs))
     } else {
       //fetch existing songs from db
       getSongs().then((songs) => {
         if (songs) {
           localStorage.setItem("eurovisionSongs", JSON.stringify(songs))  
+          console.log(songs)
           setSongs(songs)              
+        } 
+      })
+    } 
+  }, [])
+
+  useEffect(() => {    
+    const users = localStorage.getItem("eurovisionUsersMap")
+    //check existingSongs is not an empty array
+    if(users && users !== "[]") {
+      setUsersIdMap(JSON.parse(users))
+    } else {
+      //fetch existing songs from db
+      getUserIds().then((users) => {
+        if (users) {
+          localStorage.setItem("eurovisionUsersMap", JSON.stringify(songs))            
+          setUsersIdMap(users)         
         } 
       })
     } 
@@ -59,6 +79,19 @@ export default function RatingPage() {
     }
   }
 
+  const saveRatingsToDb = (name: string, countryCode: string, points: number) => {
+    try {
+      // get userId from usersIdMap
+      const participantId = usersIdMap.find((user) => user.name === name)?.id
+      if (participantId) {
+        const vote = castVote({ participantId, countryCode, points })   
+      }
+   
+    } catch (err) {
+      alert(err)
+    }
+  }
+
   const handlePrevSong = () => {
     setCurrentSongIndex((prev) => (prev === 0 ? songs.length - 1 : prev - 1))
   }
@@ -68,7 +101,7 @@ export default function RatingPage() {
   }
 
   const handleRating = (points: number) => {
-    const currentSongId = songs[currentSongIndex].order
+    const currentSongId = songs[currentSongIndex].id
 
     // Check if this rating is already used for another song
     const songWithThisRating = Object.entries(ratings).find(
@@ -77,7 +110,7 @@ export default function RatingPage() {
 
     if (songWithThisRating) {
       const [songIdWithRating] = songWithThisRating
-      const songWithRatingName = songs.find((s) => s.order === Number(songIdWithRating))?.title
+      const songWithRatingName = songs.find((s) => s.id === Number(songIdWithRating))?.title
 
       // Remove the rating from the other song
       const newRatings = { ...ratings }
@@ -88,6 +121,7 @@ export default function RatingPage() {
 
       setRatings(newRatings)
       saveRatings(newRatings)
+      saveRatingsToDb(user.name, songs[currentSongIndex].country, points)
 
       toast({
         title: `Rating Updated`,
@@ -98,6 +132,7 @@ export default function RatingPage() {
       const newRatings = { ...ratings, [currentSongId]: points }
       setRatings(newRatings)
       saveRatings(newRatings)
+      saveRatingsToDb(user.name, songs[currentSongIndex].country, points)
 
       toast({
         title: `${points} Points Awarded`,
@@ -107,7 +142,9 @@ export default function RatingPage() {
   }
 
   const currentSong = songs[currentSongIndex]
-  const currentRating = ratings[currentSong.order]
+  const currentRating = ratings[currentSong.id]
+  
+  var emojiFlags = require('emoji-flags');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white pb-20">
@@ -122,7 +159,7 @@ export default function RatingPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
             <h2 className="text-2xl font-bold">{currentSong.title}</h2>
             <p className="text-lg">{currentSong.artist}</p>
-            <p className="text-sm opacity-80">{currentSong.country}</p>
+            <p className="text-sm opacity-80">{currentSong.country}{emojiFlags.countryCode(currentSong.country_code)?.emoji}</p>
           </div>
 
           <button
@@ -151,7 +188,7 @@ export default function RatingPage() {
           {[8, 10, 12].map((pointValue) => {
             // Find if this point value is already assigned to a song
             const assignedSongId = Object.entries(ratings).find(([_, points]) => points === pointValue)?.[0]
-            const assignedSong = assignedSongId ? songs.find((song) => song.order === Number(assignedSongId)) : null
+            const assignedSong = assignedSongId ? songs.find((song) => song.id === Number(assignedSongId)) : null
 
             // Determine if this button is for the current song's rating
             const isCurrentSongRating = currentRating === pointValue
@@ -166,7 +203,6 @@ export default function RatingPage() {
               bgStyle = "from-pink-600 to-yellow-600"
             }
 
-            var emojiFlags = require('emoji-flags');
 
             return (
               <Button
@@ -181,7 +217,7 @@ export default function RatingPage() {
                   <>
                     <span className="opacity-50">{pointValue}</span>
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <span className="text-xs font-normal">
+                    <span className="text-l font-normal">
                       {emojiFlags.countryCode(assignedSong.country_code).emoji || assignedSong.country.substring(0, 3)}
                     </span>
                     </div>

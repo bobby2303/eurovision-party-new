@@ -3,25 +3,16 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Music, Target, User } from "lucide-react"
+import { Music, Target, User, Trophy } from "lucide-react"
 
 export default function NavBar() {
   const pathname = usePathname()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
-    const updateLoginStatus = () => {
-      const user = localStorage.getItem("eurovisionUser")
-      setIsLoggedIn(!!user)
-    }
-
-    updateLoginStatus() // Check on mount
-    window.addEventListener("storage", updateLoginStatus) // Listen for changes
-
-    return () => {
-      window.removeEventListener("storage", updateLoginStatus) // Cleanup
-    }
-  }, [pathname])
+    const user = localStorage.getItem("eurovisionUser")
+    setIsLoggedIn(!!user)
+  }, [])
 
   if (!isLoggedIn) return null
 
@@ -36,6 +27,16 @@ export default function NavBar() {
         >
           <Music size={24} />
           <span className="text-xs mt-1">Rate</span>
+        </Link>
+
+        <Link
+          href="/leaderboard"
+          className={`flex flex-col items-center justify-center w-full h-full ${
+            pathname === "/leaderboard" ? "text-pink-500" : "text-white/70"
+          }`}
+        >
+          <Trophy size={24} />
+          <span className="text-xs mt-1">Votes</span>
         </Link>
 
         <Link

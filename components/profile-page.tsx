@@ -27,7 +27,6 @@ export default function ProfilePage() {
       if(existingSongs && existingSongs !== "[]") {
         console.log("Songs already exist in local storage")        
         setSongs(JSON.parse(existingSongs)) 
-        console.log(JSON.parse(existingSongs))
       } else {
         //fetch existing songs from db
         getSongs().then((songs) => {
@@ -40,7 +39,8 @@ export default function ProfilePage() {
     }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem("eurovisionUser")
+    localStorage.removeItem("eurovisionUser")    
+    localStorage.removeItem("eurovisionUsersMap")
     localStorage.removeItem("eurovisionBingoSelected")    
     localStorage.removeItem("eurovisionSongs")
     router.push("/")
@@ -54,7 +54,7 @@ export default function ProfilePage() {
   // Find songs that have been rated
   const ratedSongs = Object.entries(userRatings)
     .map(([songId, points]) => {
-      const song = songs.find((s) => s.order === Number(songId))
+      const song = songs.find((s) => s.id === Number(songId))
       return { song, points }
     })
     .sort((a, b) => Number(b.points) - Number(a.points))
