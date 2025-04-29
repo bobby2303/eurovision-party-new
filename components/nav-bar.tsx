@@ -9,10 +9,24 @@ export default function NavBar() {
   const pathname = usePathname()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  useEffect(() => {
+  const updateLoginStatus = () => {
     const user = localStorage.getItem("eurovisionUser")
     setIsLoggedIn(!!user)
+  }
+
+  useEffect(() => {
+    updateLoginStatus() // Check on mount
+    window.addEventListener("storage", updateLoginStatus) // Listen for changes
+
+    return () => {
+      window.removeEventListener("storage", updateLoginStatus) // Cleanup
+    }
   }, [])
+
+  // Trigger login status update on route change
+  useEffect(() => {
+    updateLoginStatus()
+  }, [pathname])
 
   if (!isLoggedIn) return null
 
