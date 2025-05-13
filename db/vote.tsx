@@ -2,8 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 
-
-export async function castVote({
+export default async function castVote({
   participantId,
   countryCode,
   points,

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import Cookies from "js-cookie" 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { Music, Sparkles, Star, Trophy, Heart } from 'lucide-react'
-import  getParticipant  from "@/components/db/get-participant"
+import  getParticipant  from "@/db/get-participant"
 
 export default function LandingPage() {
   const [name, setName] = useState("")
@@ -53,10 +53,11 @@ export default function LandingPage() {
             ratings: {},
           }),
         )
+        Cookies.set("eurovisionUser", JSON.stringify(participant.name), { expires: 7 }) // Expires in 7 days
         router.push("/rating")
       } else {
         // User does not exist, create a new user
-        
+        alert("user not found, stop trying to get into the eurovision party!")
       }
     })
 

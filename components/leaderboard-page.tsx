@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Trophy, Music, Flag, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import getVotes from "@/components/db/get-votes";
-import getUserIds from "./db/get-user-ids";
-import getSongs from "./db/get-songs";
+import getVotes from "@/db/get-votes";
+import getUserIds from "@/db/get-user-ids";
+import getSongs from "@/db/get-songs";
 
 // Type for participant data
 interface Participant {

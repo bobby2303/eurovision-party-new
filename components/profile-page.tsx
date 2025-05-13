@@ -5,9 +5,8 @@ import Image from "next/image"
 import { LogOut, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import getSongs from "@/components/db/get-songs"
-
-
+import getSongs from "@/db/get-songs"
+import Cookies from "js-cookie"
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
@@ -50,6 +49,7 @@ export default function ProfilePage() {
     }, [])
 
   const handleLogout = () => {
+    Cookies.remove("eurovisionUser")
     localStorage.removeItem("eurovisionUser")    
     localStorage.removeItem("eurovisionUsersMap")
     localStorage.removeItem("eurovisionBingoSelected")    

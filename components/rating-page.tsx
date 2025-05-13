@@ -5,10 +5,9 @@ import Image from "next/image"
 import { ChevronLeft, ChevronRight, Play, Pause, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import getSongs from "./db/get-songs"
-import getUserIds from "./db/get-user-ids"
-
-import { castVote } from '@/components/db/vote'
+import getSongs from "@/db/get-songs"
+import getUserIds from "@/db/get-user-ids"
+import castVote from "@/db/vote"
 
 export default function RatingPage() {
   const [currentSongIndex, setCurrentSongIndex] = useState(0)
