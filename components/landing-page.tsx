@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import Cookies from "js-cookie" 
+import { getCookie, setCookie } from 'typescript-cookie'
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -53,7 +53,7 @@ export default function LandingPage() {
             ratings: {},
           }),
         )
-        Cookies.set("eurovisionUser", JSON.stringify(participant.name), { expires: 7 }) // Expires in 7 days
+        setCookie("eurovisionUser", JSON.stringify(participant.name), { expires: 7 }) // Expires in 7 days
         router.push("/rating")
       } else {
         // User does not exist, create a new user

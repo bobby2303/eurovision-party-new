@@ -6,7 +6,8 @@ import { LogOut, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import getSongs from "@/db/get-songs"
-import Cookies from "js-cookie"
+
+import { getCookie, removeCookie, setCookie } from 'typescript-cookie'
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
@@ -49,7 +50,7 @@ export default function ProfilePage() {
     }, [])
 
   const handleLogout = () => {
-    Cookies.remove("eurovisionUser")
+    removeCookie("eurovisionUser")
     localStorage.removeItem("eurovisionUser")    
     localStorage.removeItem("eurovisionUsersMap")
     localStorage.removeItem("eurovisionBingoSelected")    
